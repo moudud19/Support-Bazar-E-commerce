@@ -8,8 +8,8 @@ const products = [
         originalPrice: 4999,
         rating: 4.5,
         reviews: 128,
-        image: "🎧",
-        description: "High-quality wireless headphones with noise cancellation"
+        image: "https://via.placeholder.com/250x200?text=Wireless+Headphones",
+        description: "Experience premium sound quality with our wireless Bluetooth headphones. Features noise cancellation, 30-hour battery life, and comfortable over-ear design for all-day listening."
     },
     {
         id: 2,
@@ -19,8 +19,8 @@ const products = [
         originalPrice: 8999,
         rating: 4.7,
         reviews: 95,
-        image: "⌚",
-        description: "Advanced fitness tracking and health monitoring"
+        image: "https://via.placeholder.com/250x200?text=Smart+Watch",
+        description: "Advanced fitness tracking smartwatch with heart rate monitor, sleep tracking, GPS, and water resistance. Compatible with iOS and Android devices."
     },
     {
         id: 3,
@@ -30,8 +30,8 @@ const products = [
         originalPrice: 999,
         rating: 4.3,
         reviews: 256,
-        image: "👕",
-        description: "Comfortable and stylish cotton t-shirt"
+        image: "https://via.placeholder.com/250x200?text=Cotton+T-Shirt",
+        description: "Premium quality casual cotton t-shirt perfect for everyday wear. Soft, breathable fabric with excellent durability. Available in multiple colors and sizes."
     },
     {
         id: 4,
@@ -41,8 +41,8 @@ const products = [
         originalPrice: 2499,
         rating: 4.4,
         reviews: 187,
-        image: "👖",
-        description: "Classic blue denim jeans for everyday wear"
+        image: "https://via.placeholder.com/250x200?text=Denim+Jeans",
+        description: "Classic blue denim jeans with perfect fit and comfort. Made from high-quality denim fabric with reinforced stitching for long-lasting wear. Trendy and versatile design."
     },
     {
         id: 5,
@@ -52,8 +52,8 @@ const products = [
         originalPrice: 6999,
         rating: 4.6,
         reviews: 142,
-        image: "🍳",
-        description: "Professional grade 5-piece cookware set"
+        image: "https://via.placeholder.com/250x200?text=Cookware+Set",
+        description: "Professional grade 5-piece stainless steel cookware set. Includes pots, pans, and lids. Non-stick coating, dishwasher safe, and suitable for all cooktops including induction."
     },
     {
         id: 6,
@@ -63,8 +63,8 @@ const products = [
         originalPrice: 4999,
         rating: 4.5,
         reviews: 89,
-        image: "☕",
-        description: "Automatic coffee maker with programmable timer"
+        image: "https://via.placeholder.com/250x200?text=Coffee+Maker",
+        description: "Automatic coffee maker with programmable timer and brew strength control. Large capacity 12-cup carafe, keeps coffee hot for hours. Compact design perfect for kitchens."
     },
     {
         id: 7,
@@ -74,8 +74,8 @@ const products = [
         originalPrice: 24999,
         rating: 4.6,
         reviews: 76,
-        image: "🛋️",
-        description: "Comfortable 3-seater sofa with premium fabric"
+        image: "https://via.placeholder.com/250x200?text=Living+Room+Sofa",
+        description: "Comfortable 3-seater sofa with premium fabric upholstery and wooden frame. Spacious seating with built-in armrests. Perfect addition to any living room."
     },
     {
         id: 8,
@@ -85,8 +85,8 @@ const products = [
         originalPrice: 2499,
         rating: 4.4,
         reviews: 234,
-        image: "🛏️",
-        description: "Soft cotton bed sheet set (Queen size)"
+        image: "https://via.placeholder.com/250x200?text=Bed+Sheet+Set",
+        description: "Soft and comfortable cotton bed sheet set for Queen size beds. Includes 2 pillowcases and 1 fitted sheet. Machine washable and fade-resistant."
     },
     {
         id: 9,
@@ -96,8 +96,8 @@ const products = [
         originalPrice: 1499,
         rating: 4.5,
         reviews: 198,
-        image: "🧘",
-        description: "Non-slip yoga and exercise mat"
+        image: "https://via.placeholder.com/250x200?text=Yoga+Mat",
+        description: "Non-slip yoga and exercise mat with excellent cushioning. 6mm thick mat provides comfort and support during workouts. Lightweight and portable with carrying strap."
     },
     {
         id: 10,
@@ -107,8 +107,8 @@ const products = [
         originalPrice: 5999,
         rating: 4.6,
         reviews: 143,
-        image: "🏋️",
-        description: "Adjustable dumbbells set (5kg to 25kg)"
+        image: "https://via.placeholder.com/250x200?text=Dumbbells+Set",
+        description: "Adjustable dumbbells set ranging from 5kg to 25kg. Perfect for home gym workouts. Chrome plated with ergonomic grip handles for safe and effective training."
     },
     {
         id: 11,
@@ -118,8 +118,8 @@ const products = [
         originalPrice: 599,
         rating: 4.7,
         reviews: 512,
-        image: "📚",
-        description: "Classic novel by F. Scott Fitzgerald"
+        image: "https://via.placeholder.com/250x200?text=The+Great+Gatsby",
+        description: "Classic novel by F. Scott Fitzgerald. A timeless masterpiece exploring themes of love, wealth, and the American Dream. Hardcover edition with quality binding."
     },
     {
         id: 12,
@@ -129,8 +129,8 @@ const products = [
         originalPrice: 999,
         rating: 4.5,
         reviews: 187,
-        image: "📖",
-        description: "Essential guide to JavaScript programming"
+        image: "https://via.placeholder.com/250x200?text=JavaScript+Good+Parts",
+        description: "Essential guide to JavaScript programming by Douglas Crockford. Learn the best practices and core concepts. Perfect for beginners and intermediate developers."
     }
 ];
 
@@ -142,7 +142,7 @@ function displayProducts(productsToDisplay = products) {
     container.innerHTML = productsToDisplay.map(product => `
         <div class="product-card">
             <div class="product-image">
-                ${product.image}
+                <img src="${product.image}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">
                 <button class="product-wishlist-btn" onclick="toggleWishlist(${product.id})" title="Add to Wishlist">
                     <i class="far fa-heart"></i>
                 </button>
@@ -160,6 +160,7 @@ function displayProducts(productsToDisplay = products) {
                     <span class="product-current-price">Rs. ${product.price}</span>
                     <span class="product-discount">-${Math.round((1 - product.price/product.originalPrice) * 100)}%</span>
                 </div>
+                <p style="font-size: 0.85rem; color: #666; margin: 10px 0;">${product.description}</p>
                 <div class="product-actions">
                     <button class="add-to-cart-btn" onclick="addToCart(${product.id})">
                         <i class="fas fa-shopping-cart"></i> Add to Cart
@@ -192,6 +193,14 @@ function searchProducts(query) {
         p.category.toLowerCase().includes(lowerQuery) ||
         p.description.toLowerCase().includes(lowerQuery)
     );
+}
+
+// View product details
+function viewProductDetails(productId) {
+    const product = getProductById(productId);
+    if (!product) return;
+    
+    alert(`${product.name}\n\n${product.description}\n\nPrice: Rs. ${product.price}`);
 }
 
 // Initialize featured products on page load
