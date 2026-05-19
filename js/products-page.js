@@ -1,210 +1,218 @@
-// Products Page - Filter, Sort, and Display
+// Products Page Functionality
+
+let allProducts = [];
+let filteredProducts = [];
+const categoryParam = new URLSearchParams(window.location.search).get('category');
+
 document.addEventListener('DOMContentLoaded', function() {
-    loadProductsPage();
+    loadProducts();
     setupEventListeners();
+    applyDefaultCategory();
 });
 
+// Load products from data
+function loadProducts() {
+    if (typeof products !== 'undefined') {
+        allProducts = [...products];
+        filteredProducts = [...products];
+        displayProducts();
+    }
+}
+
+// Setup event listeners
 function setupEventListeners() {
     // Category filters
-    document.querySelectorAll('.category-filter').forEach(checkbox => {
-        checkbox.addEventListener('change', filterProducts);
+    document.querySelectorAll('input[name="category"]').forEach(checkbox => {
+        checkbox.addEventListener('change', applyFilters);
     });
 
-    // Price range filter
-    const priceRange = document.getElementById('priceRange');
-    if (priceRange) {
-        priceRange.addEventListener('input', function() {
-            document.getElementById('priceValue').textContent = this.value;
-            filterProducts();
-        });
-    }
+    // Price filter
+    document.getElementById('priceRange').addEventListener('input', function() {
+        document.getElementById('priceValue').textContent = 'Rs. ' + this.value;
+        applyFilters();
+    });
+
+    // Rating filter
+    document.querySelectorAll('input[name="rating"]').forEach(checkbox => {
+        checkbox.addEventListener('change', applyFilters);
+    });
 
     // Sort
-    const sortSelect = document.getElementById('sortSelect');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', filterProducts);
-    }
+    document.getElementById('sortBy').addEventListener('change', function() {
+        sortProducts(this.value);
+    });
 
-    // Reset filters
-    const resetBtn = document.getElementById('resetFilters');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', resetAllFilters);
-    }
+    // Clear filters
+    document.getElementById('clearFilters').addEventListener('click', clearAllFilters);
 
     // Search
-    const searchBtn = document.getElementById('searchBtn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', performSearch);
-    }
-
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-    }
-}
-
-function loadProductsPage() {
-    // Check if products data exists
-    if (typeof productsData === 'undefined') {
-        console.error('Products data not loaded');
-        return;
-    }
-
-    displayProducts(productsData);
-}
-
-function filterProducts() {
-    // Get selected categories
-    const selectedCategories = [];
-    document.querySelectorAll('.category-filter:checked').forEach(checkbox => {
-        selectedCategories.push(checkbox.value);
+    document.getElementById('searchBtn').addEventListener('click', searchProducts);
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchProducts();
     });
+}
 
-    // Get price range
+// Apply default category from URL
+function applyDefaultCategory() {
+    if (categoryParam) {
+        const categoryCheckbox = document.querySelector(`input[value="${categoryParam}"]`);
+        if (categoryCheckbox) {
+            categoryCheckbox.checked = true;
+            applyFilters();
+        }
+    }
+}
+
+// Apply filters
+function applyFilters() {
+    const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked'))
+        .map(cb => cb.value);
+    const selectedRatings = Array.from(document.querySelectorAll('input[name="rating"]:checked'))
+        .map(cb => parseInt(cb.value));
     const maxPrice = parseInt(document.getElementById('priceRange').value);
 
-    // Get sort option
-    const sortBy = document.getElementById('sortSelect').value;
+    filteredProducts = allProducts.filter(product => {
+        // Category filter
+        if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+            return false;
+        }
 
-    // Filter products
-    let filtered = productsData.filter(product => {
-        const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
-        const priceMatch = product.price <= maxPrice;
-        return categoryMatch && priceMatch;
+        // Price filter
+        if (product.price > maxPrice) {
+            return false;
+        }
+
+        // Rating filter
+        if (selectedRatings.length > 0 && !selectedRatings.some(rating => product.rating >= rating)) {
+            return false;
+        }
+
+        return true;
     });
 
-    // Sort products
-    filtered = sortProducts(filtered, sortBy);
-
-    // Display filtered products
-    displayProducts(filtered);
+    displayProducts();
 }
 
-function sortProducts(products, sortBy) {
-    const sorted = [...products];
-    
+// Sort products
+function sortProducts(sortBy) {
     switch(sortBy) {
-        case 'price-low':
-            return sorted.sort((a, b) => a.price - b.price);
-        case 'price-high':
-            return sorted.sort((a, b) => b.price - a.price);
-        case 'rating':
-            return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
         case 'newest':
-        default:
-            return sorted.reverse();
+            filteredProducts.sort((a, b) => new Date(b.dateAdded) - new Date(a.dateAdded));
+            break;
+        case 'price-low':
+            filteredProducts.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-high':
+            filteredProducts.sort((a, b) => b.price - a.price);
+            break;
+        case 'rating':
+            filteredProducts.sort((a, b) => b.rating - a.rating);
+            break;
     }
+    displayProducts();
 }
 
-function displayProducts(products) {
-    const grid = document.getElementById('productsGrid');
-    const countElement = document.getElementById('productCount');
+// Clear all filters
+function clearAllFilters() {
+    document.querySelectorAll('input[name="category"], input[name="rating"]').forEach(cb => {
+        cb.checked = false;
+    });
+    document.getElementById('priceRange').value = 50000;
+    document.getElementById('priceValue').textContent = 'Rs. 50000';
+    document.getElementById('sortBy').value = 'newest';
+    document.getElementById('searchInput').value = '';
+    filteredProducts = [...allProducts];
+    displayProducts();
+}
 
-    if (!grid) return;
-
-    grid.innerHTML = '';
-
-    if (products.length === 0) {
-        grid.innerHTML = '<div class="no-products"><p>No products found. Try adjusting your filters.</p></div>';
-        countElement.textContent = 'Showing 0 products';
+// Search products
+function searchProducts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (searchTerm === '') {
+        applyFilters();
         return;
     }
 
-    products.forEach(product => {
-        const productCard = createProductCard(product);
-        grid.appendChild(productCard);
-    });
-
-    countElement.textContent = `Showing ${products.length} products`;
-}
-
-function createProductCard(product) {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-
-    const rating = product.rating ? `<div class="rating"><span class="stars">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5-Math.floor(product.rating))}</span></div>` : '';
-    
-    card.innerHTML = `
-        <div class="product-image">
-            <img src="${product.image}" alt="${product.name}">
-            ${product.discount ? `<div class="discount-badge">-${product.discount}%</div>` : ''}
-        </div>
-        <div class="product-details">
-            <h3>${product.name}</h3>
-            <p class="category">${product.category}</p>
-            ${rating}
-            <p class="description">${product.description}</p>
-            <div class="price-section">
-                <span class="price">Rs. ${product.price.toLocaleString()}</span>
-                ${product.originalPrice ? `<span class="original-price">Rs. ${product.originalPrice.toLocaleString()}</span>` : ''}
-            </div>
-            <div class="product-actions">
-                <button class="btn btn-small" onclick="addToCart(${product.id})">
-                    <i class="fas fa-shopping-cart"></i> Add to Cart
-                </button>
-                <button class="btn btn-small btn-outline" onclick="addToWishlist(${product.id})">
-                    <i class="fas fa-heart"></i>
-                </button>
-            </div>
-        </div>
-    `;
-
-    return card;
-}
-
-function resetAllFilters() {
-    // Uncheck all category filters
-    document.querySelectorAll('.category-filter').forEach(checkbox => {
-        checkbox.checked = false;
-    });
-
-    // Reset price range
-    const priceRange = document.getElementById('priceRange');
-    priceRange.value = priceRange.max;
-    document.getElementById('priceValue').textContent = priceRange.max;
-
-    // Reset sort
-    document.getElementById('sortSelect').value = 'newest';
-
-    // Display all products
-    displayProducts(productsData);
-}
-
-function performSearch() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-    
-    if (!searchTerm) {
-        displayProducts(productsData);
-        return;
-    }
-
-    const results = productsData.filter(product => 
+    filteredProducts = allProducts.filter(product => 
         product.name.toLowerCase().includes(searchTerm) ||
         product.description.toLowerCase().includes(searchTerm) ||
         product.category.toLowerCase().includes(searchTerm)
     );
 
-    displayProducts(results);
+    displayProducts();
 }
 
-// Get category from URL parameter
-function getCategoryFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('category');
+// Display products
+function displayProducts() {
+    const grid = document.getElementById('productsGrid');
+    document.getElementById('productCount').textContent = filteredProducts.length;
+
+    if (filteredProducts.length === 0) {
+        grid.innerHTML = '<p class="no-products">No products found. Try adjusting your filters.</p>';
+        return;
+    }
+
+    grid.innerHTML = filteredProducts.map(product => `
+        <div class="product-card">
+            <div class="product-image">
+                <img src="${product.image}" alt="${product.name}">
+                ${product.discount ? `<div class="discount-badge">-${product.discount}%</div>` : ''}
+            </div>
+            <div class="product-content">
+                <div class="product-category">${product.category}</div>
+                <h3>${product.name}</h3>
+                <p class="product-description">${product.description}</p>
+                <div class="product-rating">
+                    ${generateStars(product.rating)}
+                    <span class="rating-count">(${product.reviews} reviews)</span>
+                </div>
+                <div class="product-price">
+                    <span class="price">Rs. ${product.price.toLocaleString()}</span>
+                    ${product.originalPrice ? `<span class="original-price">Rs. ${product.originalPrice.toLocaleString()}</span>` : ''}
+                </div>
+                <div class="product-actions">
+                    <button class="btn btn-primary" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.image}')">Add to Cart</button>
+                    <button class="btn-wishlist" onclick="addToWishlist(${product.id}, '${product.name}', ${product.price}, '${product.image}')">
+                        <i class="far fa-heart"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
-// Load products by category if specified
-window.addEventListener('load', function() {
-    const category = getCategoryFromURL();
-    if (category) {
-        const checkbox = document.querySelector(`input[value="${category}"]`);
-        if (checkbox) {
-            checkbox.checked = true;
-            filterProducts();
+// Generate star rating
+function generateStars(rating) {
+    let stars = '';
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < 5; i++) {
+        if (i < fullStars) {
+            stars += '<i class="fas fa-star"></i>';
+        } else if (i === fullStars && hasHalfStar) {
+            stars += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+            stars += '<i class="far fa-star"></i>';
         }
     }
+    return stars;
+}
+
+// Update cart count
+document.addEventListener('cartUpdated', function() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    document.querySelector('.cart-count').textContent = count;
 });
+
+// Update wishlist count
+document.addEventListener('wishlistUpdated', function() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    document.querySelector('.wishlist-count').textContent = wishlist.length;
+});
+
+// Initial update
+document.dispatchEvent(new Event('cartUpdated'));
+document.dispatchEvent(new Event('wishlistUpdated'));

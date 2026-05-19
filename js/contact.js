@@ -1,98 +1,136 @@
-// Contact Page - Form Handling
+// Contact Page Functionality
+
 document.addEventListener('DOMContentLoaded', function() {
     setupContactForm();
     setupFAQ();
+    updateCartCount();
 });
 
+// Setup contact form
 function setupContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', handleContactSubmit);
-    }
-}
+    const form = document.getElementById('contactForm');
+    const formMessage = document.getElementById('formMessage');
 
-function handleContactSubmit(e) {
-    e.preventDefault();
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        subject: document.getElementById('subject').value,
-        message: document.getElementById('message').value
-    };
+        // Clear previous message
+        formMessage.textContent = '';
+        formMessage.className = 'form-message';
 
-    // Validate form
-    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-        showFormMessage('Please fill in all required fields', 'error');
-        return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-        showFormMessage('Please enter a valid email address', 'error');
-        return;
-    }
-
-    // Simulate form submission
-    const submitBtn = document.querySelector('#contactForm button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.textContent = 'Sending...';
-
-    setTimeout(() => {
-        // Success
-        showFormMessage('Thank you! Your message has been sent successfully. We will contact you soon.', 'success');
-        
-        // Reset form
-        document.getElementById('contactForm').reset();
-        
-        // Re-enable button
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Message';
-    }, 1500);
-}
-
-function showFormMessage(message, type) {
-    const messageElement = document.getElementById('formMessage');
-    if (messageElement) {
-        messageElement.textContent = message;
-        messageElement.className = `form-message ${type}`;
-        
-        // Auto-clear success messages after 5 seconds
-        if (type === 'success') {
-            setTimeout(() => {
-                messageElement.textContent = '';
-                messageElement.className = 'form-message';
-            }, 5000);
+        // Validate form
+        if (!validateContactForm()) {
+            formMessage.textContent = 'Please fill in all required fields correctly';
+            formMessage.className = 'form-message error';
+            return;
         }
-    }
+
+        // Get form data
+        const formData = new FormData(form);
+        const contactData = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            subject: formData.get('subject'),
+            message: formData.get('message'),
+            date: new Date().toISOString()
+        };
+
+        // Save to localStorage
+        let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+        contacts.push(contactData);
+        localStorage.setItem('contacts', JSON.stringify(contacts));
+
+        // Show success message
+        formMessage.textContent = 'Thank you! Your message has been sent successfully. We will get back to you within 24 hours.';
+        formMessage.className = 'form-message success';
+
+        // Reset form
+        form.reset();
+
+        // Hide message after 5 seconds
+        setTimeout(() => {
+            formMessage.textContent = '';
+            formMessage.className = 'form-message';
+        }, 5000);
+    });
 }
 
-function setupFAQ() {
-    const faqItems = document.querySelectorAll('.faq-item');
-    
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        const answer = item.querySelector('.faq-answer');
+// Validate contact form
+function validateContactForm() {
+    const form = document.getElementById('contactForm');
+    const fields = form.querySelectorAll('[required]');
+    let isValid = true;
 
-        question.addEventListener('click', () => {
-            // Close other open FAQs
-            faqItems.forEach(otherItem => {
-                if (otherItem !== item) {
-                    otherItem.classList.remove('active');
-                    otherItem.querySelector('.faq-answer').style.maxHeight = '0';
+    fields.forEach(field => {
+        const errorSpan = field.parentElement.querySelector('.error-message');
+
+        if (field.type === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(field.value)) {
+                if (errorSpan) {
+                    errorSpan.textContent = 'Please enter a valid email';
+                    errorSpan.style.display = 'block';
                 }
+                isValid = false;
+            } else {
+                if (errorSpan) errorSpan.style.display = 'none';
+            }
+        } else if (field.value.trim() === '') {
+            if (errorSpan) {
+                errorSpan.textContent = 'This field is required';
+                errorSpan.style.display = 'block';
+            }
+            isValid = false;
+        } else {
+            if (errorSpan) errorSpan.style.display = 'none';
+        }
+    });
+
+    return isValid;
+}
+
+// Setup FAQ accordion
+function setupFAQ() {
+    const faqQuestions = document.querySelectorAll('.faq-question');
+
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const faqItem = this.parentElement;
+            const isActive = faqItem.classList.contains('active');
+
+            // Close all other items
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
             });
 
-            // Toggle current FAQ
-            item.classList.toggle('active');
-            
-            if (item.classList.contains('active')) {
-                answer.style.maxHeight = answer.scrollHeight + 'px';
-            } else {
-                answer.style.maxHeight = '0';
+            // Toggle current item
+            if (!isActive) {
+                faqItem.classList.add('active');
             }
         });
     });
 }
+
+// Update cart count
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    if (document.querySelector('.cart-count')) {
+        document.querySelector('.cart-count').textContent = count;
+    }
+}
+
+// Update wishlist count
+function updateWishlistCount() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    if (document.querySelector('.wishlist-count')) {
+        document.querySelector('.wishlist-count').textContent = wishlist.length;
+    }
+}
+
+// Initial updates
+setInterval(() => {
+    updateCartCount();
+    updateWishlistCount();
+}, 500);

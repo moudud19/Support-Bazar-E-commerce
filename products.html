@@ -37,104 +37,79 @@
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <section class="page-header">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
         <div class="container">
-            <h1>Our Products</h1>
-            <p>Browse our wide selection of quality products</p>
-        </div>
-    </section>
-
-    <!-- Products Section -->
-    <section class="products-section">
-        <div class="container">
-            <div class="products-wrapper">
-                <!-- Sidebar Filters -->
-                <aside class="sidebar">
-                    <div class="filter-group">
-                        <h3>Categories</h3>
-                        <label class="filter-item">
-                            <input type="checkbox" value="electronics" class="category-filter">
-                            <span>Electronics</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" value="fashion" class="category-filter">
-                            <span>Fashion</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" value="home" class="category-filter">
-                            <span>Home & Garden</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" value="kitchen" class="category-filter">
-                            <span>Kitchen</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" value="sports" class="category-filter">
-                            <span>Sports & Fitness</span>
-                        </label>
-                        <label class="filter-item">
-                            <input type="checkbox" value="books" class="category-filter">
-                            <span>Books</span>
-                        </label>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3>Price Range</h3>
-                        <div class="price-filter">
-                            <input type="range" id="priceRange" min="0" max="50000" step="100" value="50000">
-                            <p>Up to Rs. <span id="priceValue">50000</span></p>
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <h3>Sort By</h3>
-                        <select id="sortSelect" class="sort-select">
-                            <option value="newest">Newest</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Top Rated</option>
-                        </select>
-                    </div>
-
-                    <button class="btn btn-secondary" id="resetFilters">Reset Filters</button>
-                </aside>
-
-                <!-- Main Products Area -->
-                <div class="products-main">
-                    <div class="products-header">
-                        <p id="productCount">Showing 0 products</p>
-                    </div>
-                    <div class="products-grid" id="productsGrid">
-                        <!-- Products loaded by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Cart Modal -->
-    <div id="cartModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Shopping Cart</h2>
-            <div id="cartItems"></div>
-            <div class="cart-summary">
-                <p>Subtotal: <span id="subtotal">Rs. 0</span></p>
-                <p>Tax (5%): <span id="tax">Rs. 0</span></p>
-                <p class="total">Total: <span id="total">Rs. 0</span></p>
-            </div>
-            <button class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+            <a href="index.html">Home</a>
+            <span> / </span>
+            <span>Products</span>
         </div>
     </div>
 
-    <!-- Wishlist Modal -->
-    <div id="wishlistModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>My Wishlist</h2>
-            <div id="wishlistItems"></div>
-        </div>
+    <!-- Products Page Content -->
+    <div class="container products-container">
+        <!-- Sidebar Filters -->
+        <aside class="filters-sidebar">
+            <h3>Filters</h3>
+
+            <!-- Category Filter -->
+            <div class="filter-group">
+                <h4>Category</h4>
+                <label><input type="checkbox" name="category" value="electronics"> Electronics</label>
+                <label><input type="checkbox" name="category" value="fashion"> Fashion</label>
+                <label><input type="checkbox" name="category" value="home"> Home & Garden</label>
+                <label><input type="checkbox" name="category" value="kitchen"> Kitchen</label>
+                <label><input type="checkbox" name="category" value="sports"> Sports & Fitness</label>
+                <label><input type="checkbox" name="category" value="books"> Books</label>
+            </div>
+
+            <!-- Price Filter -->
+            <div class="filter-group">
+                <h4>Price Range</h4>
+                <input type="range" id="priceRange" min="0" max="50000" value="50000">
+                <div class="price-display">
+                    <span>Rs. 0</span>
+                    <span>-</span>
+                    <span id="priceValue">Rs. 50000</span>
+                </div>
+            </div>
+
+            <!-- Rating Filter -->
+            <div class="filter-group">
+                <h4>Rating</h4>
+                <label><input type="checkbox" name="rating" value="5"> 5 Stars</label>
+                <label><input type="checkbox" name="rating" value="4"> 4 Stars & Up</label>
+                <label><input type="checkbox" name="rating" value="3"> 3 Stars & Up</label>
+                <label><input type="checkbox" name="rating" value="2"> 2 Stars & Up</label>
+            </div>
+
+            <!-- Clear Filters -->
+            <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
+        </aside>
+
+        <!-- Main Products Area -->
+        <main class="products-main">
+            <!-- Sort Options -->
+            <div class="sort-section">
+                <label>Sort by:</label>
+                <select id="sortBy">
+                    <option value="newest">Newest</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Top Rated</option>
+                </select>
+            </div>
+
+            <!-- Product Count -->
+            <div class="product-count">
+                <p>Showing <span id="productCount">0</span> products</p>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Products loaded by JavaScript -->
+            </div>
+        </main>
     </div>
 
     <!-- Footer -->
@@ -169,6 +144,30 @@
             </div>
         </div>
     </footer>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Shopping Cart</h2>
+            <div id="cartItems"></div>
+            <div class="cart-summary">
+                <p>Subtotal: <span id="subtotal">Rs. 0</span></p>
+                <p>Tax (5%): <span id="tax">Rs. 0</span></p>
+                <p class="total">Total: <span id="total">Rs. 0</span></p>
+            </div>
+            <button class="btn btn-primary" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Wishlist Modal -->
+    <div id="wishlistModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>My Wishlist</h2>
+            <div id="wishlistItems"></div>
+        </div>
+    </div>
 
     <script src="js/products-data.js"></script>
     <script src="js/cart.js"></script>
